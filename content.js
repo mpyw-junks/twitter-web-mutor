@@ -1,14 +1,14 @@
 'use strict';
 
 (function (iframe) {
-    
+
     iframe.style.visibility = 'hidden';
     document.body.appendChild(iframe);
     iframe.onload = function () {
-        
+
         /* Sandboxed contentWindow */
         var sandbox = this.contentWindow;
-        
+
         /* Callback managing functions */
         var RestoreCallbackCode = function () {
             return localStorage['tcm-callback'] || 'return false;';
@@ -23,22 +23,22 @@
             }, '*');
         };
         var GoCallback = function (item) {
-            var isReply = item.getAttribute('data-component-context') === 'reply_activity';
-            if (item.getAttribute('data-item-type') !== 'tweet' && !isReply) {
+            var isReply = item.dataset.componentContext === 'reply_activity';
+            if (item.dataset.itemType !== 'tweet' && !isReply) {
                 return true;
             }
             var tweet = item.querySelector('.tweet');
-            var retweeter = tweet.getAttribute('data-retweeter');
+            var retweeter = tweet.dataset.retweeter;
             var retweetInfo = item.querySelector('.js-retweet-text');
             var params = [
-                tweet.getAttribute('data-user-id'),
-                tweet.getAttribute('data-screen-name'),
-                tweet.getAttribute('data-name'),
+                tweet.dataset.userId,
+                tweet.dataset.screenName,
+                tweet.dataset.name,
                 tweet.querySelector('.tweet-text').textContent,
                 isReply,
-                !!tweet.getAttribute('data-promoted'),
+                !!tweet.dataset.promoted,
                 !!retweeter,
-                retweeter ? retweetInfo.querySelector('a').getAttribute('data-user-id') : null,
+                retweeter ? retweetInfo.querySelector('a').dataset.userId : null,
                 retweeter,
                 retweeter ? retweetInfo.querySelector('b').textContent : null
             ];
@@ -48,7 +48,7 @@
                 params: params
             }, '*');
         }
-        
+
         /* Observers */
         var CreateObserver = function (nodeType, options, filterCallback, applyCallback) {
             var observer = new MutationObserver(function (mutations) {
@@ -75,7 +75,7 @@
         };
         var PreObserver = {
             observe: function (node) {
-                if (node) { 
+                if (node) {
                     var childs = node.children;
                     for (var i = childs.length; i--;) {
                         GoCallback(childs[i]);
@@ -100,10 +100,10 @@
                 MuteObserver.observe(streamItems);
             }
         );
-        
+
         /* Initialize callback */
         SetCallback(RestoreCallbackCode());
-        
+
         /* Start listeing */
         window.addEventListener('message', function (e) {
             if (e.data.actionType === 'tcm-remove-tweet') {
@@ -111,14 +111,14 @@
                 node.parentNode.removeChild(node);
             }
         });
-        
+
         /* Start observing */
         (function (streamItems) {
             PreObserver.observe(streamItems);
             MuteObserver.observe(streamItems);
             RefreshObserver.observe(document);
         })(document.getElementById('stream-items-id'));
-        
+
         /* Insert mute button */
         document.styleSheets[0].insertRule('.Icon--volume-off:before { content: "\\f056"}', 0);
         (function (topbar) {
@@ -132,7 +132,7 @@
                     e.preventDefault();
                     var code = window.prompt(
                         "ミュート判定関数をJavaScriptで記述します. 以下の変数が参照できます.\n" +
-                        "\n" + 
+                        "\n" +
                         "user_id_str(string)\n" +
                         "screen_name(string)\n" +
                         "name(string)\n" +
@@ -161,8 +161,8 @@
                 li.appendChild(a);
             topbar.appendChild(li);
         })(document.getElementById('global-actions'));
-        
+
     };
     iframe.setAttribute('src', chrome.extension.getURL('sandbox.html'));
-    
+
 })(document.createElement('iframe'));
