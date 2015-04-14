@@ -93,9 +93,11 @@
             function (e) { return e.id === 'timeline'; },
             function (e) {
                 MuteObserver.disconnect();
-                var StreamItems = document.getElementById('stream-items-id');
-                PreObserver.observe(StreamItems);
-                MuteObserver.observe(StreamItems);
+                setTimeout(function () {
+                    var StreamItems = document.getElementById('stream-items-id');
+                    PreObserver.observe(StreamItems);
+                    MuteObserver.observe(StreamItems);
+                }, 0);
             }
         );
         
