@@ -1,68 +1,68 @@
 'use strict';
 
-(function (Iframe) {
+(function (iframe) {
     
-    Iframe.style.visibility = 'hidden';
-    document.body.appendChild(Iframe);
-    Iframe.onload = function () {
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+    iframe.onload = function () {
         
         /* Sandboxed contentWindow */
-        var Sandbox = this.contentWindow;
+        var sandbox = this.contentWindow;
         
         /* Callback managing functions */
         var RestoreCallbackCode = function () {
-            return localStorage.getItem('tcm-callback') || 'return true;';
+            return localStorage['tcm-callback'] || 'return true;';
         };
         var StoreCallbackCode = function (code) {
-            localStorage.setItem('tcm-callback', code);
+            localStorage['tcm-callback'] = code;
         }
         var SetCallback = function (code) {
-            Sandbox.postMessage({
-                action_type: 'set_callback',
+            sandbox.postMessage({
+                actionType: 'set-callback',
                 code: code
             }, '*');
         };
         var GoCallback = function (item) {
-            var is_reply = item.getAttribute('data-component-context') === 'reply_activity';
-            if (item.getAttribute('data-item-type') !== 'tweet' && !is_reply) {
+            var isReply = item.getAttribute('data-component-context') === 'reply_activity';
+            if (item.getAttribute('data-item-type') !== 'tweet' && !isReply) {
                 return true;
             }
             var tweet = item.querySelector('.tweet');
             var retweeter = tweet.getAttribute('data-retweeter');
-            var retweet_info = item.querySelector('.js-retweet-text');
+            var retweetInfo = item.querySelector('.js-retweet-text');
             var params = [
                 tweet.getAttribute('data-user-id'),
                 tweet.getAttribute('data-screen-name'),
                 tweet.getAttribute('data-name'),
                 tweet.querySelector('.tweet-text').textContent,
-                is_reply,
+                isReply,
                 !!tweet.getAttribute('data-promoted'),
                 !!retweeter,
-                retweeter ? retweet_info.querySelector('a').getAttribute('data-user-id') : null,
+                retweeter ? retweetInfo.querySelector('a').getAttribute('data-user-id') : null,
                 retweeter,
-                retweeter ? retweet_info.querySelector('b').textContent : null
+                retweeter ? retweetInfo.querySelector('b').textContent : null
             ];
-            Sandbox.postMessage({
-                action_type: 'go_callback',
-                item_id: item.id,
+            sandbox.postMessage({
+                actionType: 'go-callback',
+                itemId: item.id,
                 params: params
             }, '*');
         }
         
         /* Observers */
-        var CreateObserver = function (nodeType, options, filter_callback, apply_callback) {
+        var CreateObserver = function (nodeType, options, filterCallback, applyCallback) {
             var observer = new MutationObserver(function (mutations) {
-                var filter_callback_local = filter_callback;
-                var apply_callback_local = apply_callback;
-                var filter_callback_invalid = typeof filter_callback_local !== 'function';
-                if (typeof apply_callback_local !== 'function') {
+                var filterCallbackLocal = filterCallback;
+                var applyCallbackLocal = applyCallback;
+                var filterCallbackInvalid = typeof filterCallbackLocal !== 'function';
+                if (typeof applyCallbackLocal !== 'function') {
                     return;
                 }
                 for (var i = mutations.length; i--;) {
                     var mutation = mutations[i];
                     for (var j = mutation[nodeType].length; j--;) {
-                        if (filter_callback_invalid || filter_callback_local(mutation[nodeType][j])) {
-                            apply_callback_local(mutation[nodeType][j]);
+                        if (filterCallbackInvalid || filterCallbackLocal(mutation[nodeType][j])) {
+                            applyCallbackLocal(mutation[nodeType][j]);
                         }
                     }
                 }
@@ -94,9 +94,9 @@
             function (e) {
                 MuteObserver.disconnect();
                 setTimeout(function () {
-                    var StreamItems = document.getElementById('stream-items-id');
-                    PreObserver.observe(StreamItems);
-                    MuteObserver.observe(StreamItems);
+                    var streamItems = document.getElementById('stream-items-id');
+                    PreObserver.observe(streamItems);
+                    MuteObserver.observe(streamItems);
                 }, 0);
             }
         );
@@ -106,16 +106,16 @@
         
         /* Start listeing */
         window.addEventListener('message', function (e) {
-            if (e.data.action_type === 'tcm-remove-tweet') {
-                var node = document.getElementById(e.data.item_id);
+            if (e.data.actionType === 'tcm-remove-tweet') {
+                var node = document.getElementById(e.data.itemId);
                 node.parentNode.removeChild(node);
             }
         });
         
         /* Start observing */
-        (function (StreamItems) {
-            PreObserver.observe(StreamItems);
-            MuteObserver.observe(StreamItems);
+        (function (streamItems) {
+            PreObserver.observe(streamItems);
+            MuteObserver.observe(streamItems);
             RefreshObserver.observe(document);
         })(document.getElementById('stream-items-id'));
         
@@ -163,6 +163,6 @@
         })(document.getElementById('global-actions'));
         
     };
-    Iframe.setAttribute('src', chrome.extension.getURL('sandbox.html'));
+    iframe.setAttribute('src', chrome.extension.getURL('sandbox.html'));
     
 })(document.createElement('iframe'));
