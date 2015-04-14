@@ -75,10 +75,12 @@
         };
         var PreObserver = {
             observe: function (node) {
-                var childs = node.children;
-                for (var i = childs.length; i--;) {
-                    GoCallback(childs[i]);
-                }
+				if (node) { 
+					var childs = node.children;
+					for (var i = childs.length; i--;) {
+						GoCallback(childs[i]);
+					}
+				}
             }
         };
         var MuteObserver = CreateObserver(
@@ -93,11 +95,9 @@
             function (e) { return e.id === 'timeline'; },
             function (e) {
                 MuteObserver.disconnect();
-                setTimeout(function () {
-                    var streamItems = document.getElementById('stream-items-id');
-                    PreObserver.observe(streamItems);
-                    MuteObserver.observe(streamItems);
-                }, 0);
+				var streamItems = document.getElementById('stream-items-id');
+				PreObserver.observe(streamItems);
+				MuteObserver.observe(streamItems);
             }
         );
         
