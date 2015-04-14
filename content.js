@@ -11,7 +11,7 @@
         
         /* Callback managing functions */
         var RestoreCallbackCode = function () {
-            return localStorage['tcm-callback'] || 'return true;';
+            return localStorage['tcm-callback'] || 'return false;';
         };
         var StoreCallbackCode = function (code) {
             localStorage['tcm-callback'] = code;
@@ -75,12 +75,12 @@
         };
         var PreObserver = {
             observe: function (node) {
-				if (node) { 
-					var childs = node.children;
-					for (var i = childs.length; i--;) {
-						GoCallback(childs[i]);
-					}
-				}
+                if (node) { 
+                    var childs = node.children;
+                    for (var i = childs.length; i--;) {
+                        GoCallback(childs[i]);
+                    }
+                }
             }
         };
         var MuteObserver = CreateObserver(
@@ -95,9 +95,9 @@
             function (e) { return e.id === 'timeline'; },
             function (e) {
                 MuteObserver.disconnect();
-				var streamItems = document.getElementById('stream-items-id');
-				PreObserver.observe(streamItems);
-				MuteObserver.observe(streamItems);
+                var streamItems = document.getElementById('stream-items-id');
+                PreObserver.observe(streamItems);
+                MuteObserver.observe(streamItems);
             }
         );
         
@@ -144,7 +144,7 @@
                         "retweeter_screen_name(string)\n" +
                         "retweeter_name(string)\n" +
                         "\n" +
-                        "残したい場合は true, ミュートしたい場合は false を返してください. 規定値は return true; で, 全てのツイートを残します.\n",
+                        "ミュートしたい場合は true, 残したい場合は false を返してください. 規定値は return false; で, 全てのツイートを残します.\n",
                         RestoreCallbackCode()
                     );
                     if (code) {

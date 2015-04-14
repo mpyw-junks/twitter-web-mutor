@@ -1,6 +1,6 @@
 (function () {
     
-    var callback = function () { return true; };
+    var callback = function () { return false; };
     
     window.addEventListener('message', function (e) {
         switch (e.data.actionType) {
@@ -20,7 +20,7 @@
                 );
                 break;
             case 'go-callback':
-                if (!callback.apply({}, e.data.params)) {
+                if (callback.apply({}, e.data.params)) {
                     e.source.postMessage({
                         actionType: 'tcm-remove-tweet',
                         itemId: e.data.itemId,
