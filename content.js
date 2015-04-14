@@ -9,6 +9,24 @@
         /* Sandboxed contentWindow */
         var sandbox = this.contentWindow;
 
+        /* Retryable document.getElementById() */
+        var RetryableGetElementById = function self(id, maxRetries, delay) {
+            return new Promise(function (resolve) {
+                var element = document.getElementById(id);
+                if (element) {
+                    resolve(element);
+                } else if (maxRetries-- > 0) {
+                    setTimeout(function () {
+                        self(id, maxRetries, delay).then(function (element) {
+                            return resolve(element);
+                        });
+                    }, delay);
+                } else {
+                    alert('twitter-cutomized-muting extension error: Failed to select element: ' + id);
+                }
+            });
+        };
+
         /* Callback managing functions */
         var RestoreCallbackCode = function () {
             return localStorage['tcm-callback'] || 'return false;';
@@ -75,11 +93,9 @@
         };
         var PreObserver = {
             observe: function (node) {
-                if (node) {
-                    var childs = node.children;
-                    for (var i = childs.length; i--;) {
-                        GoCallback(childs[i]);
-                    }
+                var childs = node.children;
+                for (var i = childs.length; i--;) {
+                    GoCallback(childs[i]);
                 }
             }
         };
@@ -95,9 +111,10 @@
             function (e) { return e.id === 'timeline'; },
             function (e) {
                 MuteObserver.disconnect();
-                var streamItems = document.getElementById('stream-items-id');
-                PreObserver.observe(streamItems);
-                MuteObserver.observe(streamItems);
+                RetryableGetElementById('stream-items-id', 5, 500).then(function (streamItems) {
+                    PreObserver.observe(streamItems);
+                    MuteObserver.observe(streamItems);
+                });
             }
         );
 
@@ -113,11 +130,11 @@
         });
 
         /* Start observing */
-        (function (streamItems) {
+        RetryableGetElementById('stream-items-id', 5, 500).then(function (streamItems) {
             PreObserver.observe(streamItems);
             MuteObserver.observe(streamItems);
             RefreshObserver.observe(document);
-        })(document.getElementById('stream-items-id'));
+        });
 
         /* Insert mute button */
         document.styleSheets[0].insertRule('.Icon--volume-off:before { content: "\\f056"}', 0);
@@ -147,7 +164,7 @@
                         "ミュートしたい場合は true, 残したい場合は false を返してください. 規定値は return false; で, 全てのツイートを残します.\n",
                         RestoreCallbackCode()
                     );
-                    if (code) {
+                    if (code !== null) {
                         StoreCallbackCode(code);
                         SetCallback(code);
                     }
