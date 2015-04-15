@@ -1,15 +1,18 @@
 {
-    "name": "twitter-customized-muting",
-    "version": "0.3.0",
+    "name": "Twitter Customized Muting",
+    "version": "1.0.0",
     "manifest_version": 2,
     "description": "カスタマイズ可能なミュート機能をTwitter公式Web版に提供",
     "content_scripts": [{
-        "js": ["content.js"],
+        "js": ["contents/content.js"],
         "matches": ["https://twitter.com/*"],
         "run_at": "document_end"
     }],
     "sandbox": {
-        "pages": ["sandbox.html"]
+        "pages": ["sandboxes/sandbox.html"]
     },
-    "web_accessible_resources": ["sandbox.html"]
+    "icons": {
+        "128": "icons/icon128.png"
+    },
+    "web_accessible_resources": ["sandboxes/sandbox.html"]
 }

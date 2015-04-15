@@ -21,8 +21,6 @@
                             return resolve(element);
                         });
                     }, delay);
-                } else {
-                    alert('twitter-cutomized-muting extension error: Failed to select element: ' + id);
                 }
             });
         };
@@ -133,12 +131,12 @@
         RetryableGetElementById('stream-items-id', 5, 500).then(function (streamItems) {
             PreObserver.observe(streamItems);
             MuteObserver.observe(streamItems);
-            RefreshObserver.observe(document);
         });
+        RefreshObserver.observe(document);
 
         /* Insert mute button */
         document.styleSheets[0].insertRule('.Icon--volume-off:before { content: "\\f056"}', 0);
-        (function (topbar) {
+        RetryableGetElementById('global-actions', 0, 0).then(function (topbar) {
             var icon = document.createElement('span');
                 icon.className = 'Icon Icon--volume-off Icon--large';
             var text = document.createElement('span');
@@ -177,7 +175,7 @@
                 li.id = 'mute-nav-id';
                 li.appendChild(a);
             topbar.appendChild(li);
-        })(document.getElementById('global-actions'));
+        });
 
     };
     iframe.setAttribute('src', chrome.extension.getURL('sandbox.html'));
