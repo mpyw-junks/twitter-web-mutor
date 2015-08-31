@@ -10,12 +10,12 @@
                     'screen_name',
                     'name',
                     'text',
-                    'is_in_notification_area',
                     'is_promotion',
                     'is_retweet',
                     'retweeter_user_id_str',
                     'retweeter_screen_name',
                     'retweeter_name',
+                    'stream_type',
                     e.data.code
                 );
                 break;

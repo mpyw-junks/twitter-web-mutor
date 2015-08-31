@@ -39,8 +39,10 @@
             }, '*');
         };
         var GoCallback = function (item) {
-            var isReply = item.dataset.componentContext === 'reply_activity';
-            if (item.dataset.itemType !== 'tweet' && !isReply) {
+            if (
+                item.dataset.itemType !== 'tweet' &&
+                item.dataset.componentContext !== 'reply_activity'
+            ) {
                 return true;
             }
             var tweet = item.querySelector('.tweet');
@@ -51,12 +53,12 @@
                 tweet.dataset.screenName,
                 tweet.dataset.name,
                 tweet.querySelector('.tweet-text').textContent,
-                isReply,
                 !!tweet.dataset.promoted,
                 !!retweeter,
                 retweeter ? retweetInfo.querySelector('a').dataset.userId : null,
                 retweeter,
-                retweeter ? retweetInfo.querySelector('b').textContent : null
+                retweeter ? retweetInfo.querySelector('b').textContent : null,
+                item.parentNode.parentNode.className.slice(7, -7)
             ];
             sandbox.postMessage({
                 actionType: 'go-callback',
@@ -146,20 +148,23 @@
                 a.addEventListener('click', function (e) {
                     e.preventDefault();
                     var code = window.prompt(
-                        "ミュート判定関数をJavaScriptで記述します. 以下の変数が参照できます.\n" +
+                        "ミュート判定関数をJavaScriptで記述.\n" + 
+                        "以下の変数が参照可能.\n" +
                         "\n" +
                         "user_id_str(string)\n" +
                         "screen_name(string)\n" +
                         "name(string)\n" +
                         "text(string)\n" +
-                        "is_in_notification_tab(boolean)\n" +
                         "is_promotion(boolean)\n" +
                         "is_retweet(boolean)\n" +
-                        "retweeter_user_id_str(string)\n" +
-                        "retweeter_screen_name(string)\n" +
-                        "retweeter_name(string)\n" +
+                        "retweeter_user_id_str(string | null)\n" +
+                        "retweeter_screen_name(string | null)\n" +
+                        "retweeter_name(string | null)\n" +
+                        "stream_type(string)\n" +
+                        "↑ \"home\", \"connect\", \"discover\", \"search\"\n" +
                         "\n" +
-                        "ミュートしたい場合は true, 残したい場合は false を返してください. 規定値は return false; で, 全てのツイートを残します.\n",
+                        "ミュートする場合: return true;\n" +
+                        "残したい場合: return false;\n", 
                         RestoreCallbackCode()
                     );
                     if (code !== null) {
@@ -178,6 +183,6 @@
         });
 
     };
-    iframe.setAttribute('src', chrome.extension.getURL('sandbox.html'));
+    iframe.setAttribute('src', chrome.extension.getURL('sandboxes/sandbox.html'));
 
 })(document.createElement('iframe'));
