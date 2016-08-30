@@ -148,15 +148,15 @@
                 a.addEventListener('click', function (e) {
                     e.preventDefault();
                     var code = window.prompt(
-                        "ミュート判定関数をJavaScriptで記述.\n" + 
+                        "ミュート判定関数をJavaScriptで記述.\n" +
                         "以下の変数が参照可能.\n" +
                         "\n" +
                         "user_id_str(string)\n" +
                         "screen_name(string)\n" +
                         "name(string)\n" +
                         "text(string)\n" +
-                        "is_promotion(boolean)\n" +
-                        "is_retweet(boolean)\n" +
+                        "is_promoted(boolean)\n" +
+                        "is_retweeted(boolean)\n" +
                         "retweeter_user_id_str(string | null)\n" +
                         "retweeter_screen_name(string | null)\n" +
                         "retweeter_name(string | null)\n" +
@@ -164,7 +164,7 @@
                         "↑ \"home\", \"connect\", \"discover\", \"search\"\n" +
                         "\n" +
                         "ミュートする場合: return true;\n" +
-                        "残したい場合: return false;\n", 
+                        "残したい場合: return false;\n",
                         RestoreCallbackCode()
                     );
                     if (code !== null) {

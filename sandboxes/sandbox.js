@@ -1,7 +1,7 @@
 (function () {
-    
+
     var callback = function () { return false; };
-    
+
     window.addEventListener('message', function (e) {
         switch (e.data.actionType) {
             case 'set-callback':
@@ -10,8 +10,8 @@
                     'screen_name',
                     'name',
                     'text',
-                    'is_promotion',
-                    'is_retweet',
+                    'is_promoted',
+                    'is_retweeted',
                     'retweeter_user_id_str',
                     'retweeter_screen_name',
                     'retweeter_name',
@@ -29,5 +29,5 @@
                 break;
         }
     });
-    
+
 })();
