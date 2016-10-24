@@ -10,8 +10,8 @@
     /* Sandboxed contentWindow */
     const sandbox = iframe.contentWindow;
     
-    /* Current timeline type */
-    let current_timeline_type;
+    /* Current stream type */
+    let current_stream_type;
 
     /* Retryable document.getElementById() */
     const retryableGetElementById = (id, maxRetries, delay) => {
@@ -41,30 +41,30 @@
       }, '*');
     };
     const getTimelineType = () => {
-      if (current_timeline_type !== undefined) {
-        return current_timeline_type;
+      if (current_stream_type !== undefined) {
+        return current_stream_type;
       }
       const tl = document.getElementById('timeline');
       if (!tl) {
-        return current_timeline_type = null;
+        return current_stream_type = null;
       }
       const classes = [...tl.classList];
       /*
       誰も使わなさそうなのでコメントアウト
       if (classes.includes('ProfileTimeline')) {
-        return current_timeline_type = 'profile';
+        return current_stream_type = 'profile';
       }
       if (classes.includes('AdaptiveSearchTimeline')) {
-        return current_timeline_type = 'search';
+        return current_stream_type = 'search';
       }
       */
       if (classes.includes('light-inline-actions')) {
-        return current_timeline_type = 'activity';
+        return current_stream_type = 'activity';
       }
       if (classes.includes('top-timeline-tweetbox')) {
-        return current_timeline_type = 'home';
+        return current_stream_type = 'home';
       }
-      return current_timeline_type = null;
+      return current_stream_type = null;
     };
     const allowableComponentContext = ['quote_activity', 'reply_activity', 'mention_activity'];
     const execCallback = item => {
@@ -138,7 +138,7 @@
       e => e.id === 'timeline',
       e => {
         listObserver.disconnect();
-        current_timeline_type = undefined;
+        current_stream_type = undefined;
         retryableGetElementById('stream-items-id', 5, 500).then(streamItems => {
           preObserver.observe(streamItems);
           listObserver.observe(streamItems);
@@ -190,7 +190,7 @@
                 "retweeter_user_id_str(string | null)\n" +
                 "retweeter_screen_name(string | null)\n" +
                 "retweeter_name(string | null)\n" +
-                "timeline_type(string)\n" +
+                "stream_type(string)\n" +
                 "↑ \"home\", \"activity\"\n" +
                 "\n" +
                 "ミュートする場合: return true;\n" +

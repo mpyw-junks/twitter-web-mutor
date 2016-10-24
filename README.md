@@ -29,7 +29,7 @@
 |retweeter_user_id_str|string<br />null|リツイート主のユーザID|
 |retweeter_screen_name|string<br />null|リツイート主のスクリーンネーム|
 |retweeter_name|string<br />null|リツイート主の名前|
-|stream_type|string| "home" "connect" "discover" "search" の何れか<br />それぞれ「ホーム」「通知」「見つける」「検索」の意味|
+|stream_type|string| "home" "activity" の何れか<br />それぞれ「ホーム」「通知」に対応|
 
 **ミュートしたい場合は`true`を返し，そうでない場合は`false`を返します．**  
 
