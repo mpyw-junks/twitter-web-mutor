@@ -17,7 +17,7 @@
           'retweeter_user_id_str',
           'retweeter_screen_name',
           'retweeter_name',
-          'stream_type',
+          'timeline_type',
           e.data.code
         );
         break;

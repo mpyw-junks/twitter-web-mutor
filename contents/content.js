@@ -9,6 +9,9 @@
 
     /* Sandboxed contentWindow */
     const sandbox = iframe.contentWindow;
+    
+    /* Current timeline type */
+    let current_timeline_type;
 
     /* Retryable document.getElementById() */
     const retryableGetElementById = (id, maxRetries, delay) => {
@@ -37,31 +40,61 @@
         code,
       }, '*');
     };
-    const execCallback = item => {
-      if (item.dataset.itemType !== 'tweet' &&
-          item.dataset.componentContext !== 'reply_activity') {
-        return true;
+    const getTimelineType = () => {
+      if (current_timeline_type !== undefined) {
+        return current_timeline_type;
       }
-      const tweet = item.querySelector('.tweet');
-      const retweeter = tweet.dataset.retweeter;
-      const retweetInfo = item.querySelector('.js-retweet-text');
-      const params = [
-        tweet.dataset.userId,
-        tweet.dataset.screenName,
-        tweet.dataset.name,
-        tweet.querySelector('.tweet-text').textContent,
-        !!tweet.dataset.promoted,
-        !!retweeter,
-        retweeter ? retweetInfo.querySelector('a').dataset.userId : null,
-        retweeter,
-        retweeter ? retweetInfo.querySelector('b').textContent : null,
-        item.parentNode.parentNode.className.slice(7, -7)
-      ];
-      sandbox.postMessage({
-        actionType: 'twm-exec-callback',
-        itemId: item.id,
-        params,
-      }, '*');
+      const tl = document.getElementById('timeline');
+      if (!tl) {
+        return current_timeline_type = null;
+      }
+      const classes = [...tl.classList];
+      /*
+      誰も使わなさそうなのでコメントアウト
+      if (classes.includes('ProfileTimeline')) {
+        return current_timeline_type = 'profile';
+      }
+      if (classes.includes('AdaptiveSearchTimeline')) {
+        return current_timeline_type = 'search';
+      }
+      */
+      if (classes.includes('light-inline-actions')) {
+        return current_timeline_type = 'activity';
+      }
+      if (classes.includes('top-timeline-tweetbox')) {
+        return current_timeline_type = 'home';
+      }
+      return current_timeline_type = null;
+    };
+    const allowableComponentContext = ['quote_activity', 'reply_activity', 'mention_activity'];
+    const execCallback = item => {
+      const type = getTimelineType();
+      if (!type ||
+          type === 'activity' &&
+          !allowableComponentContext.includes(item.dataset.componentContext)) {
+        return;
+      }
+      for (const tweet of item.querySelectorAll('.tweet')) {
+        const retweeter = tweet.dataset.retweeter;
+        const retweetInfo = item.querySelector('.js-retweet-text');
+        const params = [
+          tweet.dataset.userId,
+          tweet.dataset.screenName,
+          tweet.dataset.name,
+          tweet.querySelector('.tweet-text').textContent,
+          !!tweet.dataset.promoted,
+          !!retweeter,
+          retweeter ? retweetInfo.querySelector('a').dataset.userId : null,
+          retweeter,
+          retweeter ? retweetInfo.querySelector('b').textContent : null,
+          type,
+        ];
+        sandbox.postMessage({
+          actionType: 'twm-exec-callback',
+          itemId: item.id,
+          params,
+        }, '*');
+      }
     }
 
     /* Observers */
@@ -105,6 +138,7 @@
       e => e.id === 'timeline',
       e => {
         listObserver.disconnect();
+        current_timeline_type = undefined;
         retryableGetElementById('stream-items-id', 5, 500).then(streamItems => {
           preObserver.observe(streamItems);
           listObserver.observe(streamItems);
@@ -156,8 +190,8 @@
                 "retweeter_user_id_str(string | null)\n" +
                 "retweeter_screen_name(string | null)\n" +
                 "retweeter_name(string | null)\n" +
-                "stream_type(string)\n" +
-                "↑ \"home\", \"connect\", \"discover\", \"search\"\n" +
+                "timeline_type(string)\n" +
+                "↑ \"home\", \"activity\"\n" +
                 "\n" +
                 "ミュートする場合: return true;\n" +
                 "残したい場合: return false;\n",
